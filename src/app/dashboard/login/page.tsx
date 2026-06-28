@@ -3,8 +3,10 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Mail, ArrowRight, Loader2, KeyRound } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 function LoginForm() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +27,7 @@ function LoginForm() {
     setSuccess(null);
 
     if (!email.trim() || !email.includes("@")) {
-      setError("Please enter a valid email address.");
+      setError(t("emailErrorPrompt"));
       setIsLoading(false);
       return;
     }
@@ -46,13 +48,9 @@ function LoginForm() {
       }
 
       if (data.fallbackMode) {
-        setSuccess(
-          "Local Test Mode: A magic login link has been printed to the server terminal console. Please copy and paste it into your browser to proceed."
-        );
+        setSuccess(t("loginLocalMsg"));
       } else {
-        setSuccess(
-          "A magic login link has been sent to your email. Please check your inbox and click the link to access your dashboard."
-        );
+        setSuccess(t("loginSuccessMsg"));
       }
       setEmail("");
     } catch (err: any) {
@@ -69,9 +67,9 @@ function LoginForm() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-primary mb-2">
             <KeyRound className="w-5 h-5" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Creator Portal</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-primary">{t("portalTitle")}</h1>
           <p className="text-xs text-secondary-foreground max-w-xs mx-auto leading-relaxed">
-            Enter the email address you used to create your documents. We'll send you a passwordless magic login link.
+            {t("portalSubtitle")}
           </p>
         </div>
 
@@ -84,9 +82,9 @@ function LoginForm() {
         {success && (
           <div className="p-3.5 text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 rounded-xl border border-green-200 dark:border-green-900/50 leading-relaxed animate-in fade-in duration-200 space-y-1">
             <p>{success}</p>
-            {!success.includes("Local Test Mode") && (
+            {success !== t("loginLocalMsg") && (
               <p className="text-[10px] text-slate-500 dark:text-slate-400 italic mt-1 border-t border-green-200 dark:border-green-900/50 pt-1">
-                Note: If you don't receive the email within a few minutes, please check your spam folder.
+                {t("spamFolderNotice")}
               </p>
             )}
           </div>
@@ -95,7 +93,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
-              Email Address
+              {t("modalEmailLabel")}
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -105,7 +103,7 @@ function LoginForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="jane.doe@example.com"
+                placeholder={t("modalEmailPlaceholder")}
                 className="w-full bg-input border border-border pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-warm transition-all"
               />
             </div>
@@ -120,11 +118,11 @@ function LoginForm() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Requesting Link...</span>
+                <span>{t("requestingLinkBtn")}</span>
               </>
             ) : (
               <>
-                <span>Send Magic Link</span>
+                <span>{t("sendMagicLinkBtn")}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -136,7 +134,7 @@ function LoginForm() {
             href="/"
             className="text-xs text-secondary-foreground hover:text-accent-warm transition-colors font-mono"
           >
-            &larr; Back to Home page
+            &larr; {t("backToHomeLink")}
           </a>
         </div>
       </div>
@@ -145,11 +143,13 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  const { t } = useLanguage();
+
   return (
     <Suspense fallback={
       <div className="max-w-md mx-auto px-6 py-20 text-center flex flex-col items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
-        <p className="text-xs text-secondary-foreground mt-2 font-mono">Loading Portal...</p>
+        <p className="text-xs text-secondary-foreground mt-2 font-mono">{t("loadingPortal")}</p>
       </div>
     }>
       <LoginForm />

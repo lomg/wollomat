@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Unlock, Trash2, Download, Check, Clipboard, Calendar, Mail, FileSpreadsheet, Loader2 } from "lucide-react";
 import { generatePDF } from "@/lib/pdf";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface DocumentData {
   id: string;
@@ -31,6 +32,7 @@ interface AdminViewProps {
 }
 
 export default function AdminView({ document: initialDoc, signatures: initialSignatures }: AdminViewProps) {
+  const { t, language } = useLanguage();
   const router = useRouter();
   
   const [document, setDocument] = useState<DocumentData>(initialDoc);
@@ -125,7 +127,7 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
     setTimeout(() => setCopiedIndex(null), 1500);
   };
 
-  const formattedDate = new Date(document.createdAt).toLocaleDateString("en-US", {
+  const formattedDate = new Date(document.createdAt).toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -138,13 +140,13 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
       <div className="border-b border-border pb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <span className="text-xs font-mono font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/30 border border-orange-100 dark:border-orange-900/50 px-2.5 py-1 rounded-md">
-            Creator Dashboard
+            {t("creatorDashboardBadge")}
           </span>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight mt-3 text-primary">
-            Admin: {document.title}
+            {t("adminTitle")} {document.title}
           </h1>
           <p className="text-xs text-secondary-foreground font-mono mt-1">
-            Created on: {formattedDate} | Document ID: {document.id}
+            {t("createdOnLabel")} {formattedDate} | {t("docIdLabel")} {document.id}
           </p>
         </div>
 
@@ -167,7 +169,7 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
             ) : (
               <Lock className="w-4 h-4" />
             )}
-            <span>{document.isClosed ? "Reopen Signing" : "Close Signing"}</span>
+            <span>{document.isClosed ? t("reopenSigningBtn") : t("closeSigningBtn")}</span>
           </button>
 
           {!showDeleteConfirm ? (
@@ -177,11 +179,11 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
               className="inline-flex items-center gap-2 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-100 dark:hover:bg-red-950/30 transition-all cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
-              <span>Delete Document</span>
+              <span>{t("deleteDocBtn")}</span>
             </button>
           ) : (
             <div className="flex items-center gap-2 bg-red-50 dark:bg-red-950/10 p-1.5 rounded-xl border border-red-200 dark:border-red-900/50 animate-in fade-in slide-in-from-right-3 duration-200">
-              <span className="text-xs text-red-600 dark:text-red-400 font-semibold px-2">Are you sure?</span>
+              <span className="text-xs text-red-600 dark:text-red-400 font-semibold px-2">{t("confirmDeletePrompt")}</span>
               <button
                 id="delete-doc-confirm"
                 onClick={handleDeleteDocument}
@@ -189,14 +191,14 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
                 className="bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center gap-1 cursor-pointer"
               >
                 {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                <span>Yes, delete</span>
+                <span>{t("yesDeleteBtn")}</span>
               </button>
               <button
                 id="delete-doc-cancel"
                 onClick={() => setShowDeleteConfirm(false)}
                 className="bg-secondary text-secondary-foreground text-xs px-3 py-1.5 rounded-lg font-medium border border-border hover:bg-opacity-80 transition-colors cursor-pointer"
               >
-                Cancel
+                {t("cancelBtn")}
               </button>
             </div>
           )}
@@ -212,18 +214,18 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
       {/* Stats Counter Rows */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">Verified Signatures</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">{t("verifiedSignaturesStat")}</p>
           <p className="text-3xl font-bold tracking-tight mt-1 text-primary">{verifiedSignatures.length}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">Pending Email Confirmations</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">{t("pendingSignaturesStat")}</p>
           <p className="text-3xl font-bold tracking-tight mt-1 text-orange-600 dark:text-orange-400">{pendingSignatures.length}</p>
         </div>
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">Signing Status</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">{t("signingStatusStat")}</p>
           <div className="flex items-center gap-1.5 mt-2">
             <span className={`w-2.5 h-2.5 rounded-full ${document.isClosed ? "bg-red-500" : "bg-green-500"}`} />
-            <span className="text-sm font-semibold">{document.isClosed ? "Closed" : "Active"}</span>
+            <span className="text-sm font-semibold">{document.isClosed ? t("closedStatus") : t("activeStatus")}</span>
           </div>
         </div>
       </div>
@@ -234,9 +236,9 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
         {/* Left Column: PDFs & Document Text info */}
         <div className="space-y-6">
           <div className="bg-card border border-border rounded-xl p-6 shadow-sm space-y-4">
-            <h2 className="font-bold text-base tracking-tight border-b border-border pb-3">Export Document</h2>
+            <h2 className="font-bold text-base tracking-tight border-b border-border pb-3">{t("exportDocTitle")}</h2>
             <p className="text-xs text-secondary-foreground">
-              Select which signature list view to export into the finalized PDF document.
+              {t("exportDocDesc")}
             </p>
             
             <div className="space-y-3 pt-2">
@@ -248,8 +250,8 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
                 <div className="flex items-center gap-3">
                   <Download className="w-4 h-4 text-slate-500" />
                   <div>
-                    <p className="text-card-foreground">Public PDF</p>
-                    <p className="text-[10px] text-secondary-foreground font-normal">Names & timestamps only</p>
+                    <p className="text-card-foreground">{t("publicPdfLabel")}</p>
+                    <p className="text-[10px] text-secondary-foreground font-normal">{t("publicPdfDesc")}</p>
                   </div>
                 </div>
               </button>
@@ -262,8 +264,8 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
                 <div className="flex items-center gap-3">
                   <FileSpreadsheet className="w-4 h-4 text-accent-warm" />
                   <div>
-                    <p className="text-card-foreground">Audit Ledger PDF</p>
-                    <p className="text-[10px] text-secondary-foreground font-normal">Includes signatory email addresses</p>
+                    <p className="text-card-foreground">{t("auditLedgerLabel")}</p>
+                    <p className="text-[10px] text-secondary-foreground font-normal">{t("auditLedgerDesc")}</p>
                   </div>
                 </div>
               </button>
@@ -274,7 +276,7 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
                 href={`/d/${document.id}`}
                 className="text-xs text-accent-warm hover:underline font-semibold"
               >
-                Go to Public Signing Page &rarr;
+                {t("goPublicPageLink")} &rarr;
               </a>
             </div>
           </div>
@@ -283,24 +285,24 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
         {/* Right Columns: Signature Ledger List */}
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6 shadow-sm">
           <div className="border-b border-border pb-4 mb-4 flex items-center justify-between">
-            <h2 className="font-bold text-base tracking-tight">Signatures Registry</h2>
-            <span className="text-xs text-secondary-foreground font-mono">Verified + Pending Log</span>
+            <h2 className="font-bold text-base tracking-tight">{t("registryTitle")}</h2>
+            <span className="text-xs text-secondary-foreground font-mono">{t("registrySubtitle")}</span>
           </div>
 
           {signatures.length === 0 ? (
             <div className="text-center py-16 text-secondary-foreground text-sm">
-              No signature requests logged yet.
+              {t("noRequestsLogged")}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
-                    <th className="py-3 pr-4">Name</th>
-                    <th className="py-3 px-4">Email Address</th>
-                    {document.allowComments && <th className="py-3 px-4">Comment</th>}
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 pl-4 text-right">Verification Date (UTC)</th>
+                    <th className="py-3 pr-4">{t("tableNameCol")}</th>
+                    <th className="py-3 px-4">{t("tableEmailCol")}</th>
+                    {document.allowComments && <th className="py-3 px-4">{t("tableCommentCol")}</th>}
+                    <th className="py-3 px-4">{t("tableStatusCol")}</th>
+                    <th className="py-3 pl-4 text-right">{t("tableDateCol")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -317,7 +319,7 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
                             <button
                               onClick={() => copyEmail(sig.email, idx)}
                               className="p-1 rounded hover:bg-secondary text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                              title="Copy Email"
+                              title={t("copyEmailTooltip")}
                             >
                               {copiedIndex === idx ? (
                                 <Check className="w-3 h-3 text-green-500" />
@@ -335,11 +337,11 @@ export default function AdminView({ document: initialDoc, signatures: initialSig
                         <td className="py-3.5 px-4">
                           {sig.isVerified ? (
                             <span className="inline-flex items-center gap-1 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 text-[10px] font-semibold font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border border-green-150 dark:border-green-900/30">
-                              Verified
+                              {t("verifiedStatus")}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 bg-orange-50 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 text-[10px] font-semibold font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border border-orange-150 dark:border-orange-900/30">
-                              Pending
+                              {t("pendingSignature")}
                             </span>
                           )}
                         </td>

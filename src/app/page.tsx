@@ -2,8 +2,10 @@
 
 import React, { useState } from "react";
 import { ArrowRight, Clipboard, Check, Loader2, Sparkles } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function CreateDocumentPage() {
+  const { t } = useLanguage();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [creatorEmail, setCreatorEmail] = useState("");
@@ -26,7 +28,7 @@ export default function CreateDocumentPage() {
     setError(null);
 
     if (!title.trim() || !content.trim() || !creatorEmail.trim()) {
-      setError("Please fill out all required fields.");
+      setError(t("requiredFieldsError"));
       setIsLoading(false);
       return;
     }
@@ -82,10 +84,10 @@ export default function CreateDocumentPage() {
             <Sparkles className="w-6 h-6 animate-pulse" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-            Wollomat Ready
+            {t("successTitle")}
           </h1>
           <p className="text-secondary-foreground max-w-md mx-auto">
-            Your document has been created. Distribute the signing link and manage it via the admin panel.
+            {t("successSubtitle")}
           </p>
         </div>
 
@@ -93,10 +95,10 @@ export default function CreateDocumentPage() {
           {/* Share Link Card */}
           <div className="p-6 rounded-xl border border-border bg-card shadow-sm hover-glow">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground mb-2">
-              1. Share with Signatories
+              {t("shareSignatoriesTitle")}
             </h2>
             <p className="text-xs text-secondary-foreground mb-4">
-              Send this link to anyone you want to put their name under the text.
+              {t("shareSignatoriesDesc")}
             </p>
             <div className="flex items-center gap-2">
               <input
@@ -110,7 +112,7 @@ export default function CreateDocumentPage() {
                 id="copy-share-btn"
                 onClick={() => copyToClipboard(shareLink, "share")}
                 className="p-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-opacity-90 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-                title="Copy Link"
+                title={t("copyLinkTooltip")}
               >
                 {copiedShare ? <Check className="w-4 h-4" /> : <Clipboard className="w-4 h-4" />}
               </button>
@@ -120,7 +122,7 @@ export default function CreateDocumentPage() {
                 href={`/d/${createdDoc.id}`}
                 className="inline-flex items-center gap-1.5 text-xs text-accent-warm font-medium hover:underline"
               >
-                View Document Page <ArrowRight className="w-3.5 h-3.5" />
+                {t("viewDocPage")} <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
@@ -128,10 +130,10 @@ export default function CreateDocumentPage() {
           {/* Admin Link Card */}
           <div className="p-6 rounded-xl border border-border bg-card shadow-sm hover-glow">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground mb-2">
-              2. Creator Administration
+              {t("creatorAdminTitle")}
             </h2>
             <p className="text-xs text-secondary-foreground mb-4">
-              Use this link to download the detailed signature ledger (with emails), close signing, or delete the document. Keep this link private.
+              {t("creatorAdminDesc")}
             </p>
             <div className="flex items-center gap-2">
               <input
@@ -145,7 +147,7 @@ export default function CreateDocumentPage() {
                 id="copy-admin-btn"
                 onClick={() => copyToClipboard(adminLink, "admin")}
                 className="p-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-opacity-90 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
-                title="Copy Link"
+                title={t("copyLinkTooltip")}
               >
                 {copiedAdmin ? <Check className="w-4 h-4" /> : <Clipboard className="w-4 h-4" />}
               </button>
@@ -155,7 +157,7 @@ export default function CreateDocumentPage() {
                 href={`/d/${createdDoc.id}/admin?token=${createdDoc.adminToken}`}
                 className="inline-flex items-center gap-1.5 text-xs text-accent-warm font-medium hover:underline"
               >
-                Open Admin Dashboard <ArrowRight className="w-3.5 h-3.5" />
+                {t("openAdminDashboard")} <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
@@ -170,24 +172,24 @@ export default function CreateDocumentPage() {
         {/* Introduction text */}
         <div className="flex-1 flex flex-col justify-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-serif mb-4 leading-tight">
-            Collect group signatures, <span className="text-accent-warm italic">simply.</span>
+            {t("heroTitle")} <span className="text-accent-warm italic">{t("heroTitleItalic")}</span>
           </h1>
           <p className="text-secondary-foreground mb-8 text-base md:text-lg leading-relaxed">
-            Wollomat is built for closed groups who want to collectively sign a text. No accounts, no hassle. Write your text, share the link, and verify every signature via a quick double-opt-in email verification.
+            {t("heroSubtitle")}
           </p>
           
           <div className="hidden md:flex flex-col gap-4 text-sm text-secondary-foreground border-l-2 border-border pl-6 py-2">
             <div className="flex gap-2 items-start">
               <span className="text-accent-warm font-bold">1.</span>
-              <span>Write your collective text.</span>
+              <span>{t("step1")}</span>
             </div>
             <div className="flex gap-2 items-start">
               <span className="text-accent-warm font-bold">2.</span>
-              <span>Send the signature link to your group.</span>
+              <span>{t("step2")}</span>
             </div>
             <div className="flex gap-2 items-start">
               <span className="text-accent-warm font-bold">3.</span>
-              <span>Download the signed document with verified signature logs.</span>
+              <span>{t("step3")}</span>
             </div>
           </div>
         </div>
@@ -195,7 +197,7 @@ export default function CreateDocumentPage() {
         {/* Creation Form */}
         <div className="flex-grow bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between md:w-1/2">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <h2 className="text-lg font-semibold tracking-tight mb-2">Create Signature Document</h2>
+            <h2 className="text-lg font-semibold tracking-tight mb-2">{t("createTitle")}</h2>
             
             {error && (
               <div className="p-3 text-xs bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-900">
@@ -205,7 +207,7 @@ export default function CreateDocumentPage() {
 
             <div className="space-y-1.5">
               <label htmlFor="title" className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
-                Document Title
+                {t("docTitleLabel")}
               </label>
               <input
                 id="title"
@@ -213,14 +215,14 @@ export default function CreateDocumentPage() {
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Complaint regarding neighborhood construction noise"
+                placeholder={t("docTitlePlaceholder")}
                 className="w-full bg-input border border-border px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-accent-warm transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
               <label htmlFor="content" className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
-                Document Text
+                {t("docTextLabel")}
               </label>
               <textarea
                 id="content"
@@ -228,14 +230,14 @@ export default function CreateDocumentPage() {
                 rows={8}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Write the full text that people should sign under here..."
+                placeholder={t("docTextPlaceholder")}
                 className="w-full bg-input border border-border px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-accent-warm font-serif resize-y transition-all"
               />
             </div>
 
             <div className="space-y-1.5">
               <label htmlFor="creatorEmail" className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
-                Creator Email
+                {t("creatorEmailLabel")}
               </label>
               <input
                 id="creatorEmail"
@@ -243,11 +245,11 @@ export default function CreateDocumentPage() {
                 required
                 value={creatorEmail}
                 onChange={(e) => setCreatorEmail(e.target.value)}
-                placeholder="your.email@example.com"
+                placeholder={t("creatorEmailPlaceholder")}
                 className="w-full bg-input border border-border px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-accent-warm transition-all"
               />
               <p className="text-[10px] text-secondary-foreground italic mt-1">
-                Used only to send you the admin management link. Never displayed publicly.
+                {t("creatorEmailHint")}
               </p>
             </div>
 
@@ -260,7 +262,7 @@ export default function CreateDocumentPage() {
                 className="w-4 h-4 rounded border-border text-accent-warm focus:ring-accent-warm cursor-pointer"
               />
               <label htmlFor="allowComments" className="text-xs font-medium text-card-foreground select-none cursor-pointer">
-                Allow signatories to leave an optional comment
+                {t("allowCommentsLabel")}
               </label>
             </div>
 
@@ -273,11 +275,11 @@ export default function CreateDocumentPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Creating Wollomat...</span>
+                  <span>{t("publishingButton")}</span>
                 </>
               ) : (
                 <>
-                  <span>Publish Document</span>
+                  <span>{t("publishButton")}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -292,7 +294,7 @@ export default function CreateDocumentPage() {
           href="/dashboard/login"
           className="text-xs text-secondary-foreground hover:text-accent-warm transition-colors font-mono underline underline-offset-4"
         >
-          Manage my documents (Creator Dashboard)
+          {t("manageDocsLink")}
         </a>
       </div>
     </div>

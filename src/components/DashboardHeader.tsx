@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Mail, User } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   email: string;
 }
 
 export default function DashboardHeader({ email }: Props) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -31,7 +33,7 @@ export default function DashboardHeader({ email }: Props) {
           <User className="w-5 h-5" />
         </div>
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-primary">My Documents Dashboard</h1>
+          <h1 className="text-xl font-bold tracking-tight text-primary">{t("dashboardTitle")}</h1>
           <div className="flex items-center gap-1.5 text-xs text-secondary-foreground mt-0.5">
             <Mail className="w-3.5 h-3.5" />
             <span className="font-mono">{email}</span>
@@ -45,7 +47,7 @@ export default function DashboardHeader({ email }: Props) {
         className="inline-flex items-center gap-2 self-start sm:self-center px-4 py-2 text-xs font-semibold bg-secondary text-secondary-foreground border border-border hover:bg-opacity-80 rounded-xl transition-all cursor-pointer disabled:opacity-50"
       >
         <LogOut className="w-3.5 h-3.5" />
-        <span>{isLoggingOut ? "Logging out..." : "Log Out"}</span>
+        <span>{isLoggingOut ? t("loggingOutBtn") : t("logoutBtn")}</span>
       </button>
     </div>
   );

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { PenTool, Download, Check, Loader2, Calendar, FileText, CheckCircle, Clipboard } from "lucide-react";
 import { generatePDF } from "@/lib/pdf";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface DocumentData {
   id: string;
@@ -28,6 +29,7 @@ interface DocumentViewProps {
 }
 
 export default function DocumentView({ document, initialSignatures }: DocumentViewProps) {
+  const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   
   // Client-side signatures list
@@ -64,19 +66,19 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
 
     if (verified === "true" && nameParam) {
       setToast({
-        message: `Thank you, ${decodeURIComponent(nameParam)}! Your signature is verified.`,
+        message: t("verifiedSuccessToast").replace("{name}", decodeURIComponent(nameParam)),
         type: "success",
       });
       // Clear URL params to avoid repeating toast on reload
       window.history.replaceState({}, "", window.location.pathname);
     } else if (alreadyVerified === "true") {
       setToast({
-        message: "Your signature was already verified.",
+        message: t("alreadyVerifiedToast"),
         type: "info",
       });
       window.history.replaceState({}, "", window.location.pathname);
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   const handleSignSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +87,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
     setSuccessMessage(null);
 
     if (!name.trim() || !email.trim()) {
-      setError("Please fill in both name and email.");
+      setError(t("fillNameEmailError"));
       setIsSubmitting(false);
       return;
     }
@@ -106,13 +108,9 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
       }
 
       if (data.fallbackMode) {
-        setSuccessMessage(
-          `Local test mode: Verify link has been logged to the terminal console. You can click it there to verify.`
-        );
+        setSuccessMessage(t("localTestModeMsg"));
       } else {
-        setSuccessMessage(
-          "We sent a confirmation link to your email. Please click it to verify your signature."
-        );
+        setSuccessMessage(t("verificationSentMsg"));
       }
       
       setName("");
@@ -136,7 +134,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
     generatePDF(document, pdfSignatures, false);
   };
 
-  const formattedDate = new Date(document.createdAt).toLocaleDateString("en-US", {
+  const formattedDate = new Date(document.createdAt).toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -160,7 +158,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
             onClick={() => setToast(null)} 
             className="text-xs ml-auto opacity-70 hover:opacity-100 hover:underline cursor-pointer"
           >
-            Dismiss
+            {t("dismissBtn")}
           </button>
         </div>
       )}
@@ -174,7 +172,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
             </h1>
             <div className="flex items-center gap-2 text-xs text-secondary-foreground font-mono">
               <Calendar className="w-3.5 h-3.5" />
-              <span>Published: {formattedDate}</span>
+              <span>{t("publishedLabel")}: {formattedDate}</span>
               <span>•</span>
               <span>ID: {document.id.substring(0, 8)}...</span>
             </div>
@@ -183,11 +181,11 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
           <div className="flex items-center gap-3">
             {document.isClosed ? (
               <span className="bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 text-xs px-3 py-1.5 rounded-full font-semibold font-mono uppercase tracking-wider">
-                Signing Closed
+                {t("signingClosed")}
               </span>
             ) : (
               <span className="bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-900/50 text-xs px-3 py-1.5 rounded-full font-semibold font-mono uppercase tracking-wider">
-                Open for Signatures
+                {t("openForSignatures")}
               </span>
             )}
           </div>
@@ -207,7 +205,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
               className="inline-flex items-center gap-2 bg-accent-warm text-white px-5 py-2.5 rounded-xl font-medium hover:bg-opacity-90 transition-all shadow-sm hover:shadow cursor-pointer"
             >
               <PenTool className="w-4 h-4" />
-              <span>Sign this Document</span>
+              <span>{t("signThisDocument")}</span>
             </button>
           )}
 
@@ -217,7 +215,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
             className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-xl font-medium border border-border hover:bg-opacity-80 transition-all cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>Download Signed PDF</span>
+            <span>{t("downloadSignedPdf")}</span>
           </button>
 
           <button
@@ -226,7 +224,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
             className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-xl font-medium border border-border hover:bg-opacity-80 transition-all cursor-pointer"
           >
             {copiedLink ? <Check className="w-4 h-4 text-green-500" /> : <Clipboard className="w-4 h-4" />}
-            <span>{copiedLink ? "Link Copied!" : "Copy Link"}</span>
+            <span>{copiedLink ? t("linkCopied") : t("copyLink")}</span>
           </button>
         </div>
       </div>
@@ -235,7 +233,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
       <div className="lg:w-1/3 shrink-0">
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm sticky top-24">
           <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
-            <h2 className="font-bold tracking-tight text-lg">Verified Signatures</h2>
+            <h2 className="font-bold tracking-tight text-lg">{t("verifiedSignatures")}</h2>
             <div className="bg-primary text-primary-foreground text-xs font-semibold px-2.5 py-1 rounded-full font-mono">
               {signatures.length}
             </div>
@@ -244,20 +242,20 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
           {signatures.length === 0 ? (
             <div className="text-center py-10 text-secondary-foreground text-sm space-y-2">
               <FileText className="w-8 h-8 mx-auto opacity-30" />
-              <p>No signatures verified yet.</p>
-              {!document.isClosed && <p className="text-xs">Be the first to sign!</p>}
+              <p>{t("noSignaturesYet")}</p>
+              {!document.isClosed && <p className="text-xs">{t("beFirstToSign")}</p>}
             </div>
           ) : (
             <div className="max-h-[350px] overflow-y-auto pr-1 space-y-2.5 scrollbar">
               {signatures.map((sig, idx) => {
                 const date = sig.verifiedAt 
-                  ? new Date(sig.verifiedAt).toLocaleDateString("en-US", {
+                  ? new Date(sig.verifiedAt).toLocaleDateString(language === "de" ? "de-DE" : "en-US", {
                       month: "short",
                       day: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                     })
-                  : "Pending";
+                  : t("pendingSignature");
                 return (
                   <div 
                     key={sig.id} 
@@ -297,9 +295,9 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
             className="w-full max-w-md bg-card border border-border rounded-2xl p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-200"
           >
             <div className="mb-4">
-              <h3 className="text-lg font-bold tracking-tight">Put your name under the text</h3>
+              <h3 className="text-lg font-bold tracking-tight">{t("modalTitle")}</h3>
               <p className="text-xs text-secondary-foreground">
-                Enter your details to request email verification.
+                {t("modalSubtitle")}
               </p>
             </div>
 
@@ -310,9 +308,9 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm text-card-foreground font-medium">{successMessage}</p>
-                  {!successMessage.includes("Local test mode") && (
+                  {successMessage !== t("localTestModeMsg") && (
                     <p className="text-xs text-secondary-foreground italic border-l-2 border-accent-warm pl-3 py-0.5 text-left">
-                      Note: If you don't receive the email within a few minutes, please check your spam folder.
+                      {t("spamFolderNotice")}
                     </p>
                   )}
                 </div>
@@ -321,7 +319,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                   onClick={() => setIsSignModalOpen(false)}
                   className="w-full mt-4 bg-primary text-primary-foreground py-2 rounded-lg font-medium hover:bg-opacity-95 transition-all cursor-pointer"
                 >
-                  Close Window
+                  {t("closeWindowBtn")}
                 </button>
               </div>
             ) : (
@@ -334,7 +332,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
 
                 <div className="space-y-1">
                   <label htmlFor="modal-name" className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">
-                    Full Name
+                    {t("modalNameLabel")}
                   </label>
                   <input
                     id="modal-name"
@@ -342,14 +340,14 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Jane Doe"
+                    placeholder={t("modalNamePlaceholder")}
                     className="w-full bg-input border border-border px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-accent-warm transition-all"
                   />
                 </div>
 
                 <div className="space-y-1">
                   <label htmlFor="modal-email" className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">
-                    Email Address
+                    {t("modalEmailLabel")}
                   </label>
                   <input
                     id="modal-email"
@@ -357,7 +355,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="jane.doe@example.com"
+                    placeholder={t("modalEmailPlaceholder")}
                     className="w-full bg-input border border-border px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-accent-warm transition-all"
                   />
                 </div>
@@ -365,14 +363,14 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                 {document.allowComments && (
                   <div className="space-y-1">
                     <label htmlFor="modal-comment" className="text-xs font-semibold uppercase tracking-wider text-secondary-foreground">
-                      Comment (optional)
+                      {t("modalCommentLabel")}
                     </label>
                     <textarea
                       id="modal-comment"
                       rows={2}
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="Leave a short message..."
+                      placeholder={t("modalCommentPlaceholder")}
                       maxLength={200}
                       className="w-full bg-input border border-border px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-accent-warm resize-none transition-all"
                     />
@@ -380,7 +378,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                 )}
 
                 <p className="text-[10px] text-secondary-foreground italic leading-normal border-l border-border pl-3 mt-2">
-                  Disclosure: Your email address is only used to verify your identity and will be visible to the document creator to audit the signatures. It will never be rendered publicly.
+                  {t("modalDisclosure")}
                 </p>
 
                 <div className="flex gap-3 pt-2">
@@ -390,7 +388,7 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                     onClick={() => setIsSignModalOpen(false)}
                     className="flex-1 bg-secondary text-secondary-foreground border border-border py-2 rounded-lg font-medium hover:bg-opacity-80 transition-all cursor-pointer text-center text-sm"
                   >
-                    Cancel
+                    {t("cancelBtn")}
                   </button>
                   <button
                     id="submit-sign-btn"
@@ -401,12 +399,12 @@ export default function DocumentView({ document, initialSignatures }: DocumentVi
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Sending Link...</span>
+                        <span>{t("sendingBtn")}</span>
                       </>
                     ) : (
                       <>
                         <PenTool className="w-4 h-4" />
-                        <span>Sign Document</span>
+                        <span>{t("signingBtn")}</span>
                       </>
                     )}
                   </button>
