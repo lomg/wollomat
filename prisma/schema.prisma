@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Document {
+  id            String      @id @default(uuid())
+  title         String
+  content       String
+  creatorEmail  String
+  adminToken    String      @default(uuid())
+  isClosed      Boolean     @default(false)
+  allowComments Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  signatures    Signature[]
+}
+
+model Signature {
+  id                String    @id @default(uuid())
+  documentId        String
+  name              String
+  email             String
+  comment           String?
+  verificationToken String    @default(uuid())
+  isVerified        Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  verifiedAt        DateTime?
+  
+  document          Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model DashboardToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model CreatorSession {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
