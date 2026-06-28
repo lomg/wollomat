@@ -8,7 +8,7 @@ export const translations = {
     // Landing page
     heroTitle: "Collect group signatures,",
     heroTitleItalic: "simply.",
-    heroSubtitle: "Wollomat is built for closed groups who want to collectively sign a text. No accounts, no hassle. Write your text, share the link, and verify every signature via a quick double-opt-in email verification.",
+    heroSubtitle: "Wollomat is built for groups who want to collectively sign a text. No accounts, no hassle. Write your text, share the link, and verify every signature via a quick double-opt-in email verification.",
     step1: "1. Write your collective text.",
     step2: "2. Send the signature link to your group.",
     step3: "3. Download the signed document with verified signature logs.",
@@ -141,7 +141,7 @@ export const translations = {
     // Landing page
     heroTitle: "Gruppen-Unterschriften sammeln,",
     heroTitleItalic: "ganz einfach.",
-    heroSubtitle: "Wollomat wurde für geschlossene Gruppen entwickelt, die gemeinsam einen Text unterzeichnen möchten. Keine Benutzerkonten, kein Aufwand. Schreiben Sie Ihren Text, teilen Sie den Link und verifizieren Sie jede Unterschrift per schnellem Double-Opt-in via E-Mail.",
+    heroSubtitle: "Wollomat wurde für Gruppen entwickelt, die gemeinsam einen Text unterzeichnen möchten. Keine Benutzerkonten, kein Aufwand. Schreiben Sie Ihren Text, teilen Sie den Link und verifizieren Sie jede Unterschrift per schnellem Double-Opt-in via E-Mail.",
     step1: "1. Schreiben Sie Ihren gemeinsamen Text.",
     step2: "2. Senden Sie den Unterschrifts-Link an Ihre Gruppe.",
     step3: "3. Laden Sie das unterzeichnete Dokument mit verifizierten Unterschriften herunter.",
